@@ -1,0 +1,149 @@
+<script>
+  const logo = document.getElementById('logo');
+
+  // Add an event listener for when the image fails to load
+  function onLoadError(e) {
+    const appHeader = document.getElementById("app-header");
+    appHeader.style.display = "block";
+
+    const logoContainer = e.target.parentNode;
+    logoContainer.style.display = "none";
+  }
+
+  // Function that takes the app data and uses it to populate the UI
+  function displayUI(params) {
+    console.log("Running displayUI...");
+
+    const { responseCode, savedData } = params;
+    
+    console.log(`responseCode: ${responseCode}`);
+    console.log("savedData:");
+    console.log(savedData);
+
+    if (responseCode == 409) showPopup("Duplicate ID");
+
+    if (responseCode == 404) showPopup("ID Not Found")
+    
+    const container = document.getElementById("out-of-room");
+    const template = document.getElementById("template");
+
+    container.innerHTML = "OUT OF ROOM";
+
+    savedData.forEach((entry) => {
+      const newStudent = template.cloneNode(true);
+      const studentName = newStudent.querySelector(".student-name");
+      const startTime = newStudent.querySelector(".start-time");
+      const stopText = newStudent.querySelector(".stop-text");
+
+      newStudent.addEventListener("mouseover", () => {
+        studentName.style.display = "none";
+        startTime.style.display = "none";
+        stopText.style.display = "block";
+      });
+ 
+      newStudent.addEventListener("mouseout", () => {
+        studentName.style.display = "block";
+        startTime.style.display = "block";
+        stopText.style.display = "none";
+      });
+
+      studentName.innerHTML = entry.name;
+      startTime.innerHTML = entry.startTime;
+      newStudent.id = entry.id;
+
+      newStudent.style.display = "flex";
+      newStudent.classList.add("new-student");
+      container.appendChild(newStudent);
+    })
+
+    document.getElementById("tracker-form").reset();
+
+    const startTimerBtn = document.getElementById("start-timer");
+
+    startTimerBtn.value = "Start Timer";
+    startTimerBtn.classList.remove("loading");
+    startTimerBtn.disabled = false;
+
+    ["lunchId", "reason"].forEach((id) => {
+      document.getElementById(id).disabled = false;
+    })
+
+  }
+
+  function startTimer() {
+    event.preventDefault();
+
+    const startTimerBtn = document.getElementById("start-timer");
+
+    startTimerBtn.disabled = true;
+    startTimerBtn.value = "Loading...";
+    startTimerBtn.classList.add("loading");
+
+    ["lunchId", "reason"].forEach((id) => {
+      document.getElementById(id).disabled = true;
+    })
+    
+    const { lunchId, reason } = document.getElementById("tracker-form").elements;
+
+    const args = {
+      id: lunchId.value,
+      reason: reason.value,
+      startTime: getCurrentTime(),
+      initiator: "startTimer"
+    };
+
+    google.script.run.withSuccessHandler(displayUI).main(args);
+  }
+
+  function stopTimer(e) {
+    console.log("Running stopTimer()...");
+
+    e.currentTarget.remove();
+
+    const startTimerBtn = document.getElementById("start-timer");
+
+    startTimerBtn.disabled = true;
+    startTimerBtn.value = "Loading...";
+    startTimerBtn.classList.add("loading");
+
+    ["lunchId", "reason"].forEach((id) => {
+      document.getElementById(id).disabled = true;
+    })
+    
+    const args = {
+      id: e.currentTarget.id,
+      stopTime: getCurrentTime(),
+      initiator: "stopTimer"
+    }
+
+    google.script.run.withSuccessHandler(displayUI).main(args);
+  }
+
+  function showPopup(msg) {
+    document.getElementById("popup-msg").innerHTML = msg;
+    
+    document.getElementById('popupOverlay').style.display = 'block';
+    document.getElementById('popup').style.display = 'block';
+  }
+
+  function closePopup() {
+    document.getElementById('popupOverlay').style.display = 'none';
+    document.getElementById('popup').style.display = 'none';
+  }
+
+  function getCurrentTime() {    
+    return new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      hour12: true
+    });
+  }
+
+  setInterval(() => {
+    document.getElementById('clock').innerHTML = getCurrentTime();
+  }, 1000);
+
+  google.script.run.withSuccessHandler(displayUI).main({ initiator: "fetchData" });
+
+</script>

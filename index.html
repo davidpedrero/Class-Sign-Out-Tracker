@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mrs. Ibarra's Class</title>
+  <?!= include('style'); ?>
+</head>
+
+<body>
+  <form class="container" id="tracker-form" onsubmit="startTimer()">
+    <h1 id="app-header">Class Sign Out Tracker</h1>
+
+    <!-- Logo -->
+    <div class="form-group logo-container">
+        <img src="https://cdn-icons-png.flaticon.com/512/4033/4033019.png" alt="Class Sign Out Tracker" onerror="onLoadError(event)"/>
+    </div>
+
+    <!-- Digital Clock -->
+    <div id="clock-container">
+      <div id="clock" class="clock"></div>
+    </div>
+
+    <!-- Lunch ID Input -->
+    <div class="form-group">
+      <label for="lunchId">Lunch ID</label>
+      <input type="text" name="lunchId" id="lunchId" placeholder="Enter ID" pattern="[0-9]{6}" required>
+    </div>
+
+    <!-- Reason For Leaving Input -->
+    <div class="form-group">
+        <label for="reason">Reason For Leaving</label>
+        <select id="reason" name="reason" required>
+            <option value="" hidden>--Select a Reason--</option>
+            <option value="W - Drink Water">Drink Water</option>
+            <option value="BR - Bathroom">Bathroom</option>
+        </select>
+    </div>
+
+    <!-- Start Timer Button -->
+    <div class="form-group">
+      <input type="submit" id="start-timer" value="Start Timer"/>
+    </div>
+
+    <!-- OUT OF ROOM Section -->
+    <div id="out-of-room">OUT OF ROOM</div>
+
+    <!-- Student / Stop Timer Button -->
+    <div class="form-group" id="template" onclick="stopTimer(event)">
+      <div class="student-data">
+        <h4 class="stop-text">Stop Timer</h4>
+        <h4 class="student-name"></h4>
+        <h5 class="start-time"></h5>
+      </div>
+    </div>
+
+    <!-- Duplicate Entry Pop-up -->
+    <div id="popupOverlay" class="popup-overlay"></div>
+    <div id="popup" class="popup">
+      <h3 id="popup-msg"></h3>
+      <p>Please try another Lunch ID.</p>
+      <button class="close-btn" onclick="closePopup()">Close</button>
+    </div>
+
+  </form>
+
+    <?!= include('script') ?>
+</body>
+
+</html>
